@@ -78,7 +78,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 			if( c eq '"' and not inQuotes ) {
 				// if we hit quotes and not in quotes then it is the start of the value (and set the in_quotes status)
 				inQuotes = true;
-			else if( c eq arguments.delim and not inQuotes ) {
+			} else if( c eq arguments.delim and not inQuotes ) {
 				// if we hit a comma and we're not in quotes then that's the end of the value, so store it and reset
 				arrayAppend(rowValues, thisValue);
 				thisValue = "";
@@ -136,7 +136,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 			columnName = reReplace(columnName, "3rd", "Third"); */
 			columnArray[i] = columnName;
 			// Check for duplicated
-			for( var j=1; j<=arrayLen(columnArray); j++ ) {
+			for( var j=i+1; j<=arrayLen(columnArray); j++ ) {
 				otherColumnName = reReplace(columnArray[j], "[\s]+", "-", "all");
 				otherColumnName = reReplace(otherColumnName, "[\W]+", "", "all");
 				if(otherColumnName eq columnName) {
