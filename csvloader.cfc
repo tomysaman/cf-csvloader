@@ -72,18 +72,20 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		var values = arrayNew(1); // final array value
 		var rowValues = arrayNew(1); // array of a row values
 		var thisValue = ""; // a cell value
+		// read csv file one character a time until EOF
 		while( ptr lte (dataLength + 1) ) {
-			c = mid(data, ptr, 1);
-			if( c eq arguments.delim and not inQuotes ) {
-				// if we hit a comma and we're not in quotes then that's the end of the value, so store and reset.
+			c = mid(data, ptr, 1); // read the character
+			if( c eq '"' and not inQuotes ) {
+				// if we hit quotes and not in quotes then it is the start of the value (and set the in_quotes status)
+				inQuotes = true;
+			else if( c eq arguments.delim and not inQuotes ) {
+				// if we hit a comma and we're not in quotes then that's the end of the value, so store it and reset
 				arrayAppend(rowValues, thisValue);
 				thisValue = "";
-			} else if( c eq '"' and not inQuotes ) {
-				// if we hit quotes and not in quotes then it is the start of the value (set as in quotes)
-				inQuotes = true;
 			} else if( c eq '"' and inQuotes ) {
 				// if we've hit quotes and we're in quotes then first we check if the next character is a quote,
-				// in which case we output a quote to the value, otherwise we exit quotes mode.
+				// if yes, (we are still within the value) then append the char (quotes) to the value
+				// if no, we exit quotes mode
 				if( ptr + 1 lt dataLength and mid(data, ptr+1, 1) eq '"' ) {
 					thisValue = thisValue & '"';
 					ptr = ptr + 1;
@@ -91,22 +93,24 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 					inQuotes = false;
 				}
 			} else if( (c eq chr(13) or c eq chr(10) or ptr eq dataLength + 1) and not inQuotes ) {
-				// If we hit a new line (or the end of the file) then push the current value and start a new row
-				// If the next character is either chr(13) or chr(10) - i.e. we have chr(10)chr(13) or chr(13)chr(10), then advance point to skip it
+				// if we hit a new line (or the end of the file) then push the current value and start a new row
+				// if the next character is either chr(13) or chr(10) - i.e. we have chr(10)chr(13) or chr(13)chr(10), then advance cursor to skip it
 				if( ptr + 1 lt dataLength and ( mid(data, ptr+1, 1) eq chr(10) or mid(data, ptr+1, 1) eq chr(13) ) ) {
 					ptr = ptr + 1;
 				}
+				// append value and reset
 				arrayAppend(rowValues, thisValue);
 				thisValue = "";
+				// append row and reset
 				if(arrayLen(rowValues) gt 0) {
 					arrayAppend(values, rowValues);
 				}
 				rowValues = arrayNew(1);
 			} else {
-				// default is to just add the character to the output
+				// all other cases just append the character to the value
 				thisValue = thisValue & c;
 			}
-			ptr = ptr + 1; // move the pointer along
+			ptr = ptr + 1; // Advance the pointer
 			// if reach the no. of rows we want to read, break out the loop and return
 			if( arguments.rows gt 0 and arrayLen(values) eq arguments.rows ) {
 				break;
@@ -148,8 +152,10 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		required array dataArray hint="Raw array data"
 	) hint="Convert the raw array data to query" {
 		var row = '';
+		// the 1st array row is the columns
 		var columnNameList = arrayToList( arguments.dataArray[1] );
 		var csvQuery = queryNew(columnNameList);
+		// convert array rows into query rows
 		for( var i=2; i<=arrayLen(arguments.dataArray); i++ ) {
 			row = arguments.dataArray[i];
 			queryAddRow(csvQuery);
