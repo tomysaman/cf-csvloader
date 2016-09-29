@@ -16,7 +16,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 	public any function load(
 		required string theCSV="" hint="Can be absolute or relative path to a csv file, or be the text content of the csv data",
 		string returnFormat="query" hint="query, array, or json",
-		numeric rows="0" hint="Number of rows to read (the 1st row of column names will be counted as 1), read all if this is <= 0",
+		numeric rows="0" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
 		string delim="," hint="CSV delimiter",
 		boolean cleanupColumns="true" hint="Cleanup column names (the 1st row) to avoid duplicated and invalid (when used as query columns)"
 	) hint="Load and read csv file, return it as array, query or json" {
@@ -61,7 +61,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 
 	private array function CSVSplit(
 		required string csvData hint="CSV data",
-		numeric rows="0" hint="Number of rows to read (the 1st row of column names will be counted as 1), read all if this is <= 0",
+		numeric rows="0" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
 		string delim="," hint="CSV delimiter"
 	) hint="Read in csv content one character at a time, return an array of arrays" {
 		var data = arguments.csvData;
@@ -112,7 +112,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 			}
 			ptr = ptr + 1; // Advance the pointer
 			// if reach the no. of rows we want to read, break out the loop and return
-			if( arguments.rows gt 0 and arrayLen(values) eq arguments.rows ) {
+			if( arguments.rows gt 0 and arrayLen(values)-1 eq arguments.rows ) {
 				break;
 			}
 		}
