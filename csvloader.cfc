@@ -46,7 +46,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		// Convert and return data
 		if(arguments.returnFormat eq "array") {
 			// TODO: return as array of structs
-			return csvData;
+			return dataArrayToArrayOfStructs(csvData);
 		} else if(arguments.returnFormat eq "query") {
 			// return as query
 			return dataArrayToQuery(csvData);
@@ -146,6 +146,25 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 			}
 		}
 		return columnArray;
+	}
+
+	private array function dataArrayToArrayOfStructs(
+		required array dataArray hint="Raw array data"
+	) hint="Convert the raw array data to array of structs" {
+		var csvArray = [];
+		var cols = arguments.dataArray[1];
+		// convert array rows into array of structs
+		for( var j=2; j<=arrayLen(arguments.dataArray); j++ ) {
+			var thisRowData = {};
+			for( var i=1; i<=arrayLen(cols); i++ ) {
+				var thisCol = cols[i];
+				var thisRow = arguments.dataArray[j];
+				var thisCell = thisRow[i];
+				"thisRowData.#thisCol#" = thisCell;
+			}
+			arrayAppend(csvArray, thisRowData);
+		}
+		return csvArray;
 	}
 
 	private query function dataArrayToQuery(
