@@ -17,6 +17,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		required string theCSV="" hint="Can be absolute or relative path to a csv file, or be the text content of the csv data",
 		string returnFormat="query" hint="query, array, or json",
 		numeric rows="0" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
+		string jsonRootName="" hint="The top level (root) node name to be added to the JSON string",
 		string delim="," hint="CSV delimiter",
 		boolean cleanupColumns="true" hint="Cleanup column names (the 1st row) to avoid duplicated and invalid (when used as query columns)"
 	) hint="Load and read csv file, return it as array, query or json" {
@@ -45,14 +46,14 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		}
 		// Convert and return data
 		if(arguments.returnFormat eq "array") {
-			// TODO: return as array of structs
+			// return as array of structs
 			return dataArrayToArrayOfStructs(csvData);
 		} else if(arguments.returnFormat eq "query") {
 			// return as query
 			return dataArrayToQuery(csvData);
 		} else if(arguments.returnFormat eq "json") {
-			// TODO: return as json
-			return csvData;
+			// return as json
+			return dataArrayToJson(csvData, arguments.jsonRootName);
 		} else {
 			// other unknown formats: return the full csv as text
 			return rawCsv;
@@ -183,6 +184,18 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 			}
 		}
 		return csvQuery;
+	}
+
+	private string function dataArrayToJson(
+		required array dataArray hint="Raw array data",
+		string jsonRootName="" hint="The top level (root) node name to be added to the JSON string"
+	) hint="Convert the raw array data to json string" {
+		var csvArray = dataArrayToArrayOfStructs(arguments.dataArray);
+		var csvJson = serializeJSON(csvArray);
+		if( len(arguments.jsonRootName) ) {
+			csvJson = '{"#arguments.jsonRootName#":' & trim(csvJson) & '}';
+		}
+		return csvJson;
 	}
 
 }
