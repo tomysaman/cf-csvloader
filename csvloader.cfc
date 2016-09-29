@@ -15,9 +15,9 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 
 	public any function load(
 		required string theCSV="" hint="Can be absolute or relative path to a csv file, or be the text content of the csv data",
-		string returnFormat="query" hint="query, array, or json",
-		numeric rows="0" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
-		string jsonRootName="" hint="The top level (root) node name to be added to the JSON string",
+		required string returnFormat="query" hint="query, array, or json",
+		required numeric rows="-1" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
+		string jsonRootName="" hint="Only for json return type - The top level (root) node name to be added to the JSON string",
 		string delim="," hint="CSV delimiter",
 		boolean cleanupColumns="true" hint="Cleanup column names (the 1st row) to avoid duplicated and invalid (when used as query columns)"
 	) hint="Load and read csv file, return it as array, query or json" {
@@ -62,7 +62,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 
 	private array function CSVSplit(
 		required string csvData hint="CSV data",
-		numeric rows="0" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
+		required numeric rows="-1" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
 		string delim="," hint="CSV delimiter"
 	) hint="Read in csv content one character at a time, return an array of arrays" {
 		var data = arguments.csvData;
@@ -190,8 +190,11 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		required array dataArray hint="Raw array data",
 		string jsonRootName="" hint="The top level (root) node name to be added to the JSON string"
 	) hint="Convert the raw array data to json string" {
+		// convert raw array into array of structs
 		var csvArray = dataArrayToArrayOfStructs(arguments.dataArray);
+		// convert to json
 		var csvJson = serializeJSON(csvArray);
+		// add the top level (root) node if required
 		if( len(arguments.jsonRootName) ) {
 			csvJson = '{"#arguments.jsonRootName#":' & trim(csvJson) & '}';
 		}
