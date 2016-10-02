@@ -13,9 +13,9 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		return this;
 	}
 
-	public any function load(
-		required string theCSV="" hint="Can be absolute or relative path to a csv file, or be the text content of the csv data",
-		required string returnFormat="query" hint="query, array, or json",
+	remote any function load(
+		required string csvContent="" hint="Can be absolute or relative path to a csv file, or be the text content of the csv data",
+		required string resultFormat="query" hint="query, array, or json",
 		required numeric rows="-1" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
 		string jsonRootName="" hint="Only for json return type - The top level (root) node name to be added to the JSON string",
 		string delim="," hint="CSV delimiter",
@@ -23,15 +23,15 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 	) hint="Load and read csv file, return it as array, query or json" {
 		var rawCsv = '';
 		// Try to load csv file
-		var csvFile = arguments.theCSV;
+		var csvFile = arguments.csvContent;
 		if( !fileExists(csvFile) ) {
-			csvFile = expandPath( arguments.theCSV );
+			csvFile = expandPath( arguments.csvContent );
 		}
 		// Load csv content
 		if( fileExists(csvFile) ) {
 			rawCsv = fileRead(csvFile, "UTF-8");
 		} else {
-			rawCsv = arguments.theCSV;
+			rawCsv = arguments.csvContent;
 		}
 		rawCsv = trim(rawCsv);
 		// Return if CSV is empty
@@ -45,13 +45,13 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 			csvData[1] = cleanupColumnNames( csvData[1] );
 		}
 		// Convert and return data
-		if(arguments.returnFormat eq "array") {
+		if(arguments.resultFormat eq "array") {
 			// return as array of structs
 			return dataArrayToArrayOfStructs(csvData);
-		} else if(arguments.returnFormat eq "query") {
+		} else if(arguments.resultFormat eq "query") {
 			// return as query
 			return dataArrayToQuery(csvData);
-		} else if(arguments.returnFormat eq "json") {
+		} else if(arguments.resultFormat eq "json") {
 			// return as json
 			return dataArrayToJson(csvData, arguments.jsonRootName);
 		} else {
