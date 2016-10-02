@@ -13,7 +13,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		return this;
 	}
 
-	remote any function load(
+	public any function load(
 		required string csvContent="" hint="Can be absolute or relative path to a csv file, or be the text content of the csv data",
 		required string resultFormat="query" hint="query, array, or json",
 		required numeric rows="-1" hint="Number of rows to read (not including the 1st csv row which is the column names), read all if this is <= 0",
