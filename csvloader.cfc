@@ -159,7 +159,7 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		var cols = arguments.dataArray[1];
 		// convert array rows into array of structs
 		for( var j=2; j<=arrayLen(arguments.dataArray); j++ ) {
-			var thisRowData = {};
+			var thisRowData = structNew("linked");
 			for( var i=1; i<=arrayLen(cols); i++ ) {
 				var thisCol = cols[i];
 				var thisRow = arguments.dataArray[j];
