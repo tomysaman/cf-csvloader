@@ -193,10 +193,16 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		required array dataArray hint="Raw array data",
 		string jsonRootName="" hint="The top level (root) node name to be added to the JSON string"
 	) hint="Convert the raw array data to json string" {
+		var csvJson = '';
 		// convert raw array into array of structs
 		var csvArray = dataArrayToArrayOfStructs(arguments.dataArray);
-		// convert to json
-		var csvJson = serializeJSON(csvArray);
+		if( arrayLen(csvArray) eq 1 ) {
+			// if the data array length is 1, we only need to convert the structure (the 1st element of array)
+			csvJson = serializeJSON(csvArray[1]);
+		} else {
+			// convert array to json
+			csvJson = serializeJSON(csvArray);
+		}
 		// add the top level (root) node if required
 		if( len(arguments.jsonRootName) ) {
 			csvJson = '{"#arguments.jsonRootName#":' & trim(csvJson) & '}';
