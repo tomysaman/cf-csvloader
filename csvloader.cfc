@@ -54,6 +54,9 @@ component output="true" displayname="CSV Data Loader CFC" hint="Read and convert
 		} else if(arguments.resultFormat eq "json") {
 			// return as json
 			return dataArrayToJson(csvData, arguments.jsonRootName);
+		} else if(arguments.resultFormat eq "raw") {
+			// return raw / array of arrays format
+			return csvData;
 		} else {
 			// other unknown formats: return the full csv as text
 			return rawCsv;
